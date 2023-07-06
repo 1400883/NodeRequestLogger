@@ -1,7 +1,7 @@
 var init = {
   httpPort: 80,
   httpsPort: 443,
-  forcedHttps: true,
+  forcedHttps: false,
   version: "0.1",
 };
 
@@ -13,10 +13,11 @@ var nodeModule = {
   https: require("https"),
   cors: require("cors"),
   bodyParser: require("body-parser"),
+  util: require("util")
 };
 
 var fixedPath = {
-  httpsAuthDir: "/projects/ahk_node",
+  httpsAuthDir: ".",
 };
 
 var server = {
@@ -69,8 +70,8 @@ var server = {
     */
 
     createOptions: {
-      // key: nodeModule.fs.readFileSync(fixedPath.httpsAuthDir + "/localhost.key"),
-      // cert: nodeModule.fs.readFileSync(fixedPath.httpsAuthDir + "/localhost.crt"),
+      key: nodeModule.fs.readFileSync(fixedPath.httpsAuthDir + "/RPAMANIA.key"),
+      cert: nodeModule.fs.readFileSync(fixedPath.httpsAuthDir + "/RPAMANIA.crt"),
     },
     forced: init.forcedHttps,
   },
@@ -89,6 +90,10 @@ function Logger() {
         " - " + req.method + " '" + req.originalUrl + "'" +
         " - Protocol: " + req.protocol + 
         " - Origin: " + req.get("Origin"));
+      this.log("Body: " + req.body);
+      // this.log(req);
+      // this.log("Unpacked body: " + nodeModule.util.inspect(req.body, false, null));
+      this.log("Cookies: " + req.cookies);
     }
   };
 
@@ -106,9 +111,11 @@ var logger = new Logger();
 // Middleware
 server.app.use([
   nodeModule.cors(),
-  // nodeModule.bodyParser.text(),
+  // nodeModule.bodyParser(),
+  // nodeModule.bodyParser.raw({inflate: true, limit: "50mb", type: () => true }),
+  // nodeModule.bodyParser.text({ type: "*/*" }),
   // nodeModule.bodyParser.json(),
-  nodeModule.bodyParser.urlencoded({extended: true}),
+  // nodeModule.bodyParser.urlencoded({extended: true}),
   function(req, res, next) { 
     logger.logRequest(req);
     next(); 
@@ -172,9 +179,7 @@ server.app.get("/", function(req, res) {
   console.log("Protocol:", req.protocol)
   console.log(req.headers);
   console.log(req.body);
-
   res.end("");
-
 });
 
 nodeModule.http.createServer(server.app).listen(server.http.port);
