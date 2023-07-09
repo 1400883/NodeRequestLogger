@@ -114,7 +114,7 @@ server.app.use([
   // nodeModule.bodyParser(),
   // nodeModule.bodyParser.raw({inflate: true, limit: "50mb", type: () => true }),
   // nodeModule.bodyParser.text({ type: "*/*" }),
-  // nodeModule.bodyParser.json(),
+  nodeModule.bodyParser.json(),
   // nodeModule.bodyParser.urlencoded({extended: true}),
   function(req, res, next) { 
     logger.logRequest(req);
@@ -168,14 +168,14 @@ server.app.use(/^\/.+/,
 // );
 // console.log(JSON.parse(req.body)); // { a: 1, b: 2}
 
-server.app.post("/", function(req, res) {
+server.app.post("/*", function(req, res) {
   console.log("Protocol:", req.protocol)
   console.log(req.headers);
   console.log(req.body);
   res.end("");
 
 });
-server.app.get("/", function(req, res) {
+server.app.get("/*", function(req, res) {
   console.log("Protocol:", req.protocol)
   console.log(req.headers);
   console.log(req.body);
